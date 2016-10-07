@@ -1,5 +1,5 @@
 //Libraries
-#include <DHT.h>;
+#include <DHT.h>
 
 void setup() {
   Serial.begin(9600);
@@ -86,8 +86,12 @@ void loop() {
         }
 
         //check if it has value attached
-        if (String(command.charAt(3)).equalsIgnoreCase("[")) {
-          value = command.substring(command.indexOf('[')+1, command.indexOf("]")).toInt();
+        if (command.indexOf('\') > -1) {
+          if (command.indexOf('-', command.indexOf('\')) > -1) {
+            value = command.substring(command.indexOf('\')+1, command.indexOf('-', command.indexOf('\'))).toInt();
+          } else {
+            value = command.substring(command.indexOf('\')+1, command.indexOf("/")).toInt();
+          }
         }
 
         //perform action
@@ -110,7 +114,15 @@ void loop() {
         }
         //ACTUATIONS
         else if (action == 2) {
-  
+          if (value == -1) {
+            pinMode(pin, OUTPUT);
+            digitalWrite(pin, HIGH);
+          } else {
+            pinMode(pin, OUTPUT);
+            digitalWrite(pin, HIGH);
+            delay(value);
+            digitalWrite(pin, LOW);
+          }
         }
 
         //check if has more pins and erase the last one
@@ -124,7 +136,7 @@ void loop() {
       //MEASUREMENTS
       if (action == 1/*Moisture Sensor*/ || action == 3/*Temperature Sensor*/ || action == 4/*pH Sensor*/) {
         //turn off power for sensors
-        //delay(500);
+        delay(500);
         digitalWrite(12, LOW);
       }
     }
