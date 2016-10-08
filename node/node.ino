@@ -59,8 +59,8 @@ void loop() {
 
     for (int i=0 ; i<commandCount ; i++) {
       String command = message[i];
-      int action = command.substring(0, command.indexOf("-")).toInt();
-      command = command.substring(command.indexOf("-"), command.length());
+      int action = command.substring(0, command.indexOf("#")).toInt();
+      command = command.substring(command.indexOf("#"), command.length());
 
       //MEASUREMENTS
       if (action == 1/*Moisture Sensor*/ || action == 3/*Temperature Sensor*/ || action == 4/*pH Sensor*/) {
@@ -77,7 +77,7 @@ void loop() {
       
       int pin;
       int value;
-      while (command.indexOf("-") > -1) {        
+      while (command.indexOf("#") > -1) {        
         //get next pin
         if (String(command.charAt(1)).equalsIgnoreCase("0")) {
           pin = String(message[i].charAt(2)).toInt();
@@ -86,11 +86,11 @@ void loop() {
         }
 
         //check if it has value attached
-        if (command.indexOf('\') > -1) {
-          if (command.indexOf('-', command.indexOf('\')) > -1) {
-            value = command.substring(command.indexOf('\')+1, command.indexOf('-', command.indexOf('\'))).toInt();
+        if (command.indexOf('?') > -1) {
+          if (command.indexOf('#', command.indexOf('?')) > -1) {
+            value = command.substring(command.indexOf('?')+1, command.indexOf('#', command.indexOf('?'))).toInt();
           } else {
-            value = command.substring(command.indexOf('\')+1, command.indexOf("/")).toInt();
+            value = command.substring(command.indexOf('?')+1, command.indexOf("/")).toInt();
           }
         }
 
@@ -126,8 +126,8 @@ void loop() {
         }
 
         //check if has more pins and erase the last one
-        if (command.indexOf("-", 1) > -1) {
-          command = command.substring(command.indexOf("-", 1), command.length());
+        if (command.indexOf("#", 1) > -1) {
+          command = command.substring(command.indexOf("#", 1), command.length());
         } else {
           command = "";
         }
