@@ -107,6 +107,8 @@ void loop() {
             delay(value);
             digitalWrite(pin, HIGH);
           }
+          response[responseCount] = String(value);
+          responseCount++;
         }
 
         //check if has more pins and erase the last one
