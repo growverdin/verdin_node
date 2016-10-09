@@ -80,9 +80,9 @@ void loop() {
       while (command.indexOf("#") > -1) {        
         //get next pin
         if (String(command.charAt(1)).equalsIgnoreCase("0")) {
-          pin = String(message[i].charAt(2)).toInt();
+          pin = String(command.charAt(command.indexOf("#")+2)).toInt();
         } else {
-          pin = message[i].substring(2, 4).toInt();
+          pin = command.substring(command.indexOf("#")+1, command.indexOf("#")+3).toInt();
         }
 
         //check if it has value attached
