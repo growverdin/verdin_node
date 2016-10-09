@@ -3,22 +3,15 @@
 
 void setup() {
   Serial.begin(9600);
-  //dht.begin();
-
-  //tests
-  pinMode(13, OUTPUT);
-  digitalWrite(13, LOW);
 }
 
 void loop() {  
   bool endOfMessage = false;
-  String message[50];
+  String message[20];
   int commandCount = 0;
   String serialRead;
 
-  int debug = 0;
-
-  //RECEIVE MESSAGE
+  //Receiving messages
   while(!endOfMessage) {
     if ( Serial.available() > 0 ) {
       serialRead = Serial.readString();
@@ -28,7 +21,6 @@ void loop() {
         Serial.write("sendNext");
       } else {
         while (serialRead.indexOf("/") > -1) {
-          //Serial.print("TEM " + serialRead);
           message[commandCount] += serialRead.substring(0, serialRead.indexOf("/"));
           serialRead = serialRead.substring(serialRead.indexOf("/")+1, serialRead.length());
           commandCount++;
@@ -43,40 +35,32 @@ void loop() {
       }
     }
   }
-  
-  //EXECUTE
-  //ID-Pin-Pin/
-  //ID-Pin[value]-Pin[value]/
 
-  delay(500);
+  //Signal that received message
   digitalWrite(13, HIGH);
   delay(500);
   digitalWrite(13, LOW);
-  
+
+  //if it has commands to execute
   if (commandCount > 0) {
-    String response[15];
+    String response[20];
     int responseCount = 0;
 
+    //executes action of each command
     for (int i=0 ; i<commandCount ; i++) {
       String command = message[i];
       int action = command.substring(0, command.indexOf("#")).toInt();
       command = command.substring(command.indexOf("#"), command.length());
 
-      //MEASUREMENTS
-      if (action == 1/*Moisture Sensor*/ || action == 3/*Temperature Sensor*/ || action == 4/*pH Sensor*/) {
-        //turn on power for sensors
-        pinMode(12, OUTPUT);
-        digitalWrite(12, HIGH);
-        delay(500);
-      }
-
-      //ACTUATIONS
-      if (action == 2) {
-        //maybe preparation for actuation
-      }
+      //turn on power port
+      pinMode(12, OUTPUT);
+      digitalWrite(12, HIGH);
+      delay(500);
       
       int pin;
       int value;
+
+      //executes the action for each of the ports
       while (command.indexOf("#") > -1) {        
         //get next pin
         if (String(command.charAt(1)).equalsIgnoreCase("0")) {
@@ -85,7 +69,7 @@ void loop() {
           pin = command.substring(command.indexOf("#")+1, command.indexOf("#")+3).toInt();
         }
 
-        //check if it has value attached
+        //check if it has value attached for actuation
         if (command.indexOf('?') > -1) {
           if (command.indexOf('#', command.indexOf('?')) > -1) {
             value = command.substring(command.indexOf('?')+1, command.indexOf('#', command.indexOf('?'))).toInt();
@@ -94,7 +78,7 @@ void loop() {
           }
         }
 
-        //perform action
+        //performs the action
         //MEASUREMENTS
         if (action == 1) {
           pinMode(pin, INPUT);
@@ -116,12 +100,12 @@ void loop() {
         else if (action == 2) {
           if (value == -1) {
             pinMode(pin, OUTPUT);
-            digitalWrite(pin, HIGH);
+            digitalWrite(pin, LOW);
           } else {
             pinMode(pin, OUTPUT);
-            digitalWrite(pin, HIGH);
-            delay(value);
             digitalWrite(pin, LOW);
+            delay(value);
+            digitalWrite(pin, HIGH);
           }
         }
 
@@ -133,18 +117,18 @@ void loop() {
         }
       }
       
-      //MEASUREMENTS
-      if (action == 1/*Moisture Sensor*/ || action == 3/*Temperature Sensor*/ || action == 4/*pH Sensor*/) {
-        //turn off power for sensors
-        delay(500);
-        digitalWrite(12, LOW);
-      }
+      //turn off power port
+      delay(500);
+      digitalWrite(12, LOW);
     }
-    
+
+    //sends each result value
     for (int i=0 ; i<responseCount ; i++) {
       Serial.print(response[i]);
       delay(100);
     }
+
+    //sends signal to end the communication
     Serial.print("endOfMessage");
   }
 }
